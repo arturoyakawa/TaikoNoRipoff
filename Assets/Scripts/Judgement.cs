@@ -1,6 +1,11 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.Mathematics;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 public class Judgement : MonoBehaviour
 {
@@ -29,123 +34,29 @@ public class Judgement : MonoBehaviour
     [SerializeField] private AudioClip largeDonSound;
 
     private AudioSource audioSource;
-    List<GameObject> noteQueue = new List<GameObject>();
+    List<Note> noteQueue = new List<Note>();
     private NoteInput?[] inputsBuffer = new NoteInput?[2];
     private int freeSlolt = 0;
     private float largeNoteWindow = .03f;
+    private static float judgementX;
+    [SerializeField] private bool AutoPlay = true;
+
+    static private float ImperfectVolume = .3f;
+    static private float PerfectVolume = .3f;
 
     private void Awake()
     {
         audioSource = GetComponent<AudioSource>();
-    }
-    
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        GameObject note = collision.gameObject;
-        if (!note.CompareTag("Note")) return;
-        noteQueue.Add(note);
+        judgementX = transform.position.x;
     }
 
-    private void OnTriggerExit2D(Collider2D collision)
+    bool FetchFromQueueByType(Note.Type type, out Note result)
     {
-        GameObject note = collision.gameObject;
-        if (!note.CompareTag("Note")) return;
-        noteQueue.Remove(note);
-    }
-
-    void CastSingle(Note.Type type)
-    {
-        if (type == Note.Type.Katsu)
-        {
-            audioSource.PlayOneShot(katsuSound, .3f);
-        }
-        else
-        {
-            audioSource.PlayOneShot(donSound, .3f);
-        }
-    }
-    void CastLarge(Note.Type type)
-    {
-        if (type == Note.Type.Katsu)
-        {
-            audioSource.PlayOneShot(katsuSound);
-        }
-        else
-        {
-            audioSource.PlayOneShot(largeDonSound);
-        }
-    }
-
-    void AddToBuffer(NoteInput input)
-    {
-        if (inputsBuffer[freeSlolt] != null)
-        {
-            ProcessBufferElement(freeSlolt);
-        }
-        inputsBuffer[freeSlolt] = input;
-        freeSlolt = 1 - freeSlolt;
-    }
-   
-    void RemoveBufferElement(int index)
-    {
-        inputsBuffer[index] = null;
-    }
-
-    void ProcessBufferElement(int index)
-    {
-        if (inputsBuffer[index] == null) return;
-        NoteInput input = (NoteInput)inputsBuffer[index];
-        if (Time.time - input.timestamp <= largeNoteWindow)
-        {
-            int otherIndex = 1 - index;
-            if (inputsBuffer[otherIndex] == null) return;
-            NoteInput otherInput = (NoteInput)inputsBuffer[otherIndex];
-            if (otherInput.type == input.type && otherInput.side != input.side)
-            {
-                RemoveBufferElement(otherIndex);
-                RemoveBufferElement(index);
-                CastLarge(input.type);
-            }
-            else
-            {
-                CastSingle(input.type);
-            }
-        }
-        else
-        {
-            RemoveBufferElement(index);
-            CastSingle(input.type);
-        }
+        return (result = noteQueue.FirstOrDefault(n => n.type == type)) != null;
     }
 
     void Update()
     {
-        ProcessBufferElement(0);
-        ProcessBufferElement(1);
-
-        if (Keyboard.current == null) return;
-
-        bool leftKatsu = Keyboard.current.zKey.wasPressedThisFrame; 
-        bool rightKatsu = Keyboard.current.vKey.wasPressedThisFrame;
-
-        bool leftDon = Keyboard.current.xKey.wasPressedThisFrame;
-        bool rightDon = Keyboard.current.cKey.wasPressedThisFrame;
-
-        if (leftKatsu)
-        {
-            AddToBuffer(new NoteInput(NoteInput.Side.Left, Note.Type.Katsu, Time.time));
-        }
-        if (rightKatsu)
-        {
-            AddToBuffer(new NoteInput(NoteInput.Side.Right, Note.Type.Katsu, Time.time));
-        }
-        if (leftDon)
-        {
-            AddToBuffer(new NoteInput(NoteInput.Side.Left, Note.Type.Don, Time.time));
-        }
-        if (rightDon)
-        {
-            AddToBuffer(new NoteInput(NoteInput.Side.Right, Note.Type.Don, Time.time));
-        }
+        
     }
 }

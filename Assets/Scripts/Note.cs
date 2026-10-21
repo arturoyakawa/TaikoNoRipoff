@@ -1,7 +1,18 @@
-using System;
-using System.Drawing;
-using System.Runtime.CompilerServices;
 using UnityEngine;
+
+public struct NoteStructure
+{
+    public int targetMS;
+    public Note.Type type;
+    public Note.Size size;
+
+    public NoteStructure(int targetMS, Note.Type type, Note.Size size)
+    {
+        this.targetMS = targetMS;
+        this.type = type;
+        this.size = size;
+    }
+}
 
 public class Note : MonoBehaviour
 {
@@ -12,14 +23,17 @@ public class Note : MonoBehaviour
         Greendon,
         Voitsu,
     }
+
     public enum Size
     {
         Large,
         Small
     }
 
-    [Header("Note Settings")]
     private float scrollSpeed;
+    private int hitMS;
+    private int appearenceMS;
+
     private static float regularNoteSize = 1.2875f;
     private static float largeNoteSizeFactor = 2f;
 
@@ -35,13 +49,18 @@ public class Note : MonoBehaviour
 
     private Transform trans;
     private SpriteRenderer spriteRenderer;
-    private Rigidbody2D rb;
+
+    float InverseLerpUnclamped(float min, float max, float valor)
+    {
+        if (Mathf.Approximately(min, max)) return 0f;
+
+        return (valor - min) / (max - min);
+    }
 
     void Awake()
     {
         trans = gameObject.transform;
         spriteRenderer = GetComponent<SpriteRenderer>();
-        rb = GetComponent<Rigidbody2D>();
     }
 
     void UpdateAppearence()
@@ -65,26 +84,32 @@ public class Note : MonoBehaviour
         trans.localScale = Vector3.one * regularNoteSize * (size == Size.Large ? largeNoteSizeFactor : 1f);
     }
 
-    public void ChangeScrollSpeed(float newScrollSpeed)
+    public void Hit()
     {
-        scrollSpeed = newScrollSpeed;
+        Lane.ReleaseNote(gameObject);
     }
 
-    public void ChangeAppearence(Type newType, Size newSize)
+    public void Initialize(Type newType, Size newSize, int newHitMS, float newScrollSpeed, int sortingOrder)
     {
+        hitMS = newHitMS;
         type = newType;
         size = newSize;
+        scrollSpeed = newScrollSpeed;
+        appearenceMS = hitMS - Lane.MSInbetween;
+        spriteRenderer.sortingOrder = sortingOrder;
         UpdateAppearence();
-    } 
+    }
 
     private void Update()
     {
-        float currentMS = Lane.musicAudioSource.time*1000;
-        float hitMS = 5000f;
-        float appearenceMS = hitMS - Lane.MSInbetween;
+        float alpha = InverseLerpUnclamped(appearenceMS, hitMS, Lane.musicAudioSource.time * 1000);
+        float targetX = Mathf.LerpUnclamped(Lane.spawnX, Lane.judgementX, alpha);
 
-        float alpha = (currentMS - appearenceMS) / (hitMS - appearenceMS);
-        
-        rb.MovePosition(new Vector2(Mathf.LerpUnclamped(Lane.distanceX, Lane.judgementX, alpha), transform.position.y));
+        if (alpha > 1.5f)
+        {
+            Lane.ReleaseNote(gameObject);
+        }
+
+        transform.position = new Vector2(targetX, transform.position.y);
     }
 }

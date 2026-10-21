@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8229355049664317235}
   - component: {fileID: 5536280406542701139}
-  - component: {fileID: 6258493430587314666}
   - component: {fileID: 6194383466906051158}
   - component: {fileID: 2355790447456693651}
   m_Layer: 0
@@ -94,52 +93,6 @@ SpriteRenderer:
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
---- !u!61 &6258493430587314666
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7158403619896870023}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.26, y: 1.26}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 1.26, y: 1.26}
-  m_EdgeRadius: 0
 --- !u!114 &6194383466906051158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -156,6 +109,7 @@ MonoBehaviour:
   katsuImage: {fileID: -8506948488852355521, guid: a576c0cc2b4eb2d40842d9ccd756df16, type: 3}
   greendonImage: {fileID: -7046143186869228637, guid: cfbf55494a67fc540a489fe5d03148ea, type: 3}
   voitsuImage: {fileID: -8912919328250803832, guid: 8f8642657ac08284c91502b661fbc7dd, type: 3}
+  musicAudioSource: {fileID: 0}
   type: 1
   size: 1
 --- !u!50 &2355790447456693651
@@ -166,7 +120,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7158403619896870023}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
