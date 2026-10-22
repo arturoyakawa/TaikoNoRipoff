@@ -49,7 +49,7 @@ public class Note : MonoBehaviour
     }
 
     private float scrollSpeed;
-    private int hitMS;
+    public int hitMS { get; private set; }
     private int appearenceMS;
 
     private static float regularNoteSize = 1.2875f;
@@ -112,8 +112,6 @@ public class Note : MonoBehaviour
         if (!activeNotes.Contains(this))
             activeNotes.Add(this);
 
-        Debug.Log(activeNotes.Count);
-
         UpdateAppearence();
     }
 
@@ -126,6 +124,14 @@ public class Note : MonoBehaviour
     public void Hit()
     {
         Erase();
+    }
+
+    public int GetDistance(int currentMS, bool isSigned = false)
+    {
+        if (isSigned)
+            return hitMS - currentMS;
+        else
+            return Math.Abs(currentMS - hitMS);
     }
 
     public static bool GetClosest(int timeoutMS, int currentMS, out Note result)
@@ -158,7 +164,7 @@ public class Note : MonoBehaviour
         bool found = false;
         foreach (Note note in activeNotes)
         {
-            int dist = Math.Abs(currentMS - note.hitMS);
+            int dist = note.GetDistance(currentMS);
             if (dist > timeoutMS)
                 continue;
 
@@ -182,10 +188,11 @@ public class Note : MonoBehaviour
 
     private void Update()
     {
-        float alpha = InverseLerpUnclamped(appearenceMS, hitMS, Lane.GetCurrentMS());
+        int currentMS = Lane.GetCurrentMS();
+        float alpha = InverseLerpUnclamped(appearenceMS, hitMS, currentMS);
         float targetX = Mathf.LerpUnclamped(Lane.spawnX, Lane.judgementX, alpha);
 
-        if (alpha > 1.5f)
+        if (GetDistance(currentMS, true) <= -Judgement.FukaWindowMS - 200)
         {
             Erase();
         }

@@ -128,7 +128,6 @@ public class Lane : MonoBehaviour
     public static float currentScrollSpeed { get; private set; } = 15f;
     public static float spawnX { get; private set; } = 16;
     public static float judgementX { get; private set; } = -7.9552f;
-   // public static float judgementX { get; private set; }
     public static float distanceX { get; private set; } = spawnX - judgementX;
     public static int MSInbetween { get; private set; } = (int)Math.Round(distanceX / currentScrollSpeed * 1000);
 
@@ -181,7 +180,7 @@ public class Lane : MonoBehaviour
             createFunc: () => Instantiate(notePrefab, Camera.main.transform),
             actionOnGet: (note) => note.SetActive(true),
             actionOnRelease: (note) => note.SetActive(false),
-            actionOnDestroy: (note) => Destroy(note),
+            actionOnDestroy: (note) => { if (note) Destroy(note); },
             collectionCheck: false,
             defaultCapacity: 10,
             maxSize: 10
@@ -189,8 +188,6 @@ public class Lane : MonoBehaviour
 
         chart.Parse(Offset);
         sortingOrder = chart.fullCombo;
-
-        Debug.Log(chart.fullCombo);
     }
 
     void Update()
@@ -210,7 +207,6 @@ public class Lane : MonoBehaviour
 
         if (chart.RenderNote(GetCurrentMS(), out NoteStructure note))
         {
-            Debug.Log("try");
             GameObject noteObj = GetNote();
             Note noteScript = noteObj.GetComponent<Note>();
 

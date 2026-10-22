@@ -12,11 +12,6 @@ public class Judgement : MonoBehaviour
 
     private AudioSource audioSource;
 
-    private static float judgementX;
-
-    static private float ImperfectVolume = .3f;
-    static private float PerfectVolume = .3f;
-
     private static NoteBuffer noteBuffer = new NoteBuffer();
 
     public enum Score
@@ -38,12 +33,10 @@ public class Judgement : MonoBehaviour
     {
         if (note.IsKatsu())
         {
-            Debug.Log("KKKK");
             audioSource.PlayOneShot(katsuSound);
         }
         else
         {
-            Debug.Log("DDDD");
             audioSource.PlayOneShot(largeDonSound);
         }
     }
@@ -52,12 +45,10 @@ public class Judgement : MonoBehaviour
     {
         if (note.IsKatsu())
         {
-            Debug.Log("k");
             audioSource.PlayOneShot(katsuSound);
         }
         else
         {
-            Debug.Log("d");
             audioSource.PlayOneShot(donSound); 
         }
     }
@@ -65,19 +56,33 @@ public class Judgement : MonoBehaviour
     void Awake()
     {
         audioSource = GetComponent<AudioSource>();
-        judgementX = transform.position.x;
     }
 
     void HandleNoteStructure(NoteStructure note)
     {
-        Debug.Log(note.IsKatsu());
+        int currentMS = Lane.GetCurrentMS();
+
         if (note.IsLarge())
             CastLarge(note);
         else
             CastRegular(note);
 
-        if (Note.GetMatching(note, FukaWindowMS, Lane.GetCurrentMS(), out Note result))
+        if (Note.GetMatching(note, FukaWindowMS, currentMS, out Note result))
         {
+            switch (result.GetDistance(currentMS))
+            {
+                case <= RyoWindowMS:
+                    Debug.Log("Ryo!");
+                    break;
+                case <= KaWindowMS:
+                    Debug.Log("Ok.");
+                    break;
+                default:
+                    Debug.Log("Fuka...");
+                    break;
+            }
+            
+
             result.Hit();
         }
     }

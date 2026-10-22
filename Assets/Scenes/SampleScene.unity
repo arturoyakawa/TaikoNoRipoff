@@ -167,7 +167,7 @@ MonoBehaviour:
   donSound: {fileID: 8300000, guid: b4e4ec9f8c37f2647b00a32c50635b21, type: 3}
   katsuSound: {fileID: 8300000, guid: e6ccaf8c774df9b418cefae2281e37f7, type: 3}
   largeDonSound: {fileID: 8300000, guid: eb33b22970e87e14e9470640163e5b6d, type: 3}
-  AutoPlay: 0
+  AutoPlay: 1
 --- !u!82 &200089468
 AudioSource:
   m_ObjectHideFlags: 0
@@ -693,7 +693,7 @@ MonoBehaviour:
   notePrefab: {fileID: 7158403619896870023, guid: 996bad20987e6944ba0bc54012ad2753, type: 3}
   Offset: 83
   ChartName: LagTrain
-  PlayChartAutomatically: 0
+  PlayChartAutomatically: 1
 --- !u!1 &909273725
 GameObject:
   m_ObjectHideFlags: 0
