@@ -1,62 +1,101 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Unity.Mathematics;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
 
 public class Judgement : MonoBehaviour
 {
-    struct NoteInput
-    {
-        public enum Side
-        {
-            Left,
-            Right
-        }
-        public Side side;
-        public Note.Type type;
-        public float timestamp;
-        public NoteInput(Side side, Note.Type type, float timestamp)
-        {
-            this.side = side;
-            this.type = type;
-            this.timestamp = timestamp;
-        }
-    }
-
-
     [Header("Note Sounds")]
     [SerializeField] private AudioClip donSound;
     [SerializeField] private AudioClip katsuSound;
     [SerializeField] private AudioClip largeDonSound;
+    [SerializeField] private bool AutoPlay = true;
 
     private AudioSource audioSource;
-    List<Note> noteQueue = new List<Note>();
-    private NoteInput?[] inputsBuffer = new NoteInput?[2];
-    private int freeSlolt = 0;
-    private float largeNoteWindow = .03f;
+
     private static float judgementX;
-    [SerializeField] private bool AutoPlay = true;
 
     static private float ImperfectVolume = .3f;
     static private float PerfectVolume = .3f;
 
-    private void Awake()
+    private static NoteBuffer noteBuffer = new NoteBuffer();
+
+    private void CastLarge(NoteStructure note)
+    {
+        if (note.IsKatsu())
+        {
+            Debug.Log("KKKK");
+            audioSource.PlayOneShot(katsuSound);
+        }
+        else
+        {
+            Debug.Log("DDDD");
+            audioSource.PlayOneShot(donSound);
+        }
+    }
+
+    private void CastRegular(NoteStructure note)
+    {
+        if (note.IsKatsu())
+        {
+            Debug.Log("k");
+            audioSource.PlayOneShot(katsuSound);
+        }
+        else
+        {
+            Debug.Log("d");
+            audioSource.PlayOneShot(largeDonSound); 
+        }
+    }
+
+    void Awake()
     {
         audioSource = GetComponent<AudioSource>();
         judgementX = transform.position.x;
     }
 
-    bool FetchFromQueueByType(Note.Type type, out Note result)
+    void HandleNoteStructure(NoteStructure note)
     {
-        return (result = noteQueue.FirstOrDefault(n => n.type == type)) != null;
+        Debug.Log(note.IsKatsu());
+        if (note.IsLarge())
+            CastLarge(note);
+        else
+            CastRegular(note);
     }
 
     void Update()
     {
-        
+        for (int i = 0; i<4; i++)
+        {
+            if (noteBuffer.CheckCell(i, out NoteStructure result))
+                HandleNoteStructure(result);
+        }
+
+        if (Keyboard.current == null) return;
+
+        int currentMS = Lane.GetCurrentMS();
+
+        if (Keyboard.current.zKey.wasPressedThisFrame)
+        {
+           if (noteBuffer.Register(0, currentMS, out NoteStructure last))
+                HandleNoteStructure(last);
+        }
+
+        if (Keyboard.current.xKey.wasPressedThisFrame)
+        {
+            if (noteBuffer.Register(1, currentMS, out NoteStructure last))
+                HandleNoteStructure(last);
+        }
+
+        if (Keyboard.current.cKey.wasPressedThisFrame)
+        {
+            if (noteBuffer.Register(2, currentMS, out NoteStructure last))
+                HandleNoteStructure(last);
+        }
+
+        if (Keyboard.current.vKey.wasPressedThisFrame)
+        {
+            if (noteBuffer.Register(3, currentMS, out NoteStructure last))
+                HandleNoteStructure(last);
+        }
     }
 }

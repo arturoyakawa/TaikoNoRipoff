@@ -3,14 +3,24 @@ using UnityEngine;
 public struct NoteStructure
 {
     public int targetMS;
-    public Note.Type type;
-    public Note.Size size;
+    readonly public Note.Type type;
+    readonly public Note.Size size;
 
     public NoteStructure(int targetMS, Note.Type type, Note.Size size)
     {
         this.targetMS = targetMS;
         this.type = type;
         this.size = size;
+    }
+
+    public bool IsKatsu()
+    {
+        return (type == Note.Type.Katsu);
+    }
+
+    public bool IsLarge()
+    {
+        return (size == Note.Size.Large);
     }
 }
 
@@ -102,7 +112,7 @@ public class Note : MonoBehaviour
 
     private void Update()
     {
-        float alpha = InverseLerpUnclamped(appearenceMS, hitMS, Lane.musicAudioSource.time * 1000);
+        float alpha = InverseLerpUnclamped(appearenceMS, hitMS, Lane.GetCurrentMS());
         float targetX = Mathf.LerpUnclamped(Lane.spawnX, Lane.judgementX, alpha);
 
         if (alpha > 1.5f)

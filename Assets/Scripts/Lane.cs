@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Pool;
 
 public class Chart
@@ -67,12 +68,7 @@ public class Chart
                         Note.Size noteSize = int.Parse(objMatch.Groups[2].Value) == 5 ? Note.Size.Large : Note.Size.Small;
                         Note.Type noteType = int.Parse(objMatch.Groups[3].Value) == 8 ? Note.Type.Katsu : Note.Type.Don;
 
-                        notesQueue.Enqueue(new NoteStructure
-                        {
-                            targetMS = targetMS,
-                            size = noteSize,
-                            type = noteType
-                        });
+                        notesQueue.Enqueue(new NoteStructure(targetMS, noteType, noteSize));
                     }
                     break;
             }
@@ -82,7 +78,6 @@ public class Chart
 
 public class Lane : MonoBehaviour
 {
-
     [SerializeField] private GameObject notePrefab;
     public static AudioSource musicAudioSource;
 
@@ -93,6 +88,8 @@ public class Lane : MonoBehaviour
     public static int MSInbetween { get; private set; } = (int)Math.Round(distanceX / currentScrollSpeed * 1000);
 
     private static ObjectPool<GameObject> NotePool;
+
+    private static Chart chart = new Chart("LagTrain", "exnoiz - No Lag Train (2Gbps) (woosungko) [Futsuu]");
 
     // --------------------------------------------------------------
 
@@ -121,6 +118,11 @@ public class Lane : MonoBehaviour
         NotePool.Release(note);
     }
 
+    public static int GetCurrentMS()
+    {
+        return !musicAudioSource.isPlaying ? (int)Math.Round(Time.time*1000) : (int)Math.Round(((double)musicAudioSource.timeSamples / musicAudioSource.clip.frequency) * 1000);
+    }
+
     void Start()
     {
         NotePool = new ObjectPool<GameObject>(
@@ -132,5 +134,12 @@ public class Lane : MonoBehaviour
            defaultCapacity: 10,
            maxSize: 10
        );
+
+       chart.Parse();
+    }
+
+    void Update()
+    {
+
     }
 }
