@@ -22,7 +22,7 @@ public struct DrumInput
 
 public class NoteBuffer
 {
-    public const int largeNoteWindowMS = 20;
+    public const int largeNoteWindowMS = 27;
     private DrumInput[] buffer = new DrumInput[4];
 
     private NoteStructure Process(int index, bool isLarge)
@@ -74,38 +74,4 @@ public class NoteBuffer
 
         return false;
     }
-
-    //public void Register(DrumInput input)
-    //{
-    //    buffer[freeSlot] = input;
-    //    freeSlot++;
-    //}
-
-    //public void Consume(Action<NoteStructure> onRegistered)
-    //{
-    //    freeSlot = 0;
-    //    int currentMS = Lane.GetCurrentMS();
-    //    for (int i = 0; i < buffer.Length; i++)
-    //    {
-    //        DrumInput input = buffer[i];
-    //        int elapse = currentMS - input.timestampMS;
-    //        if (!input.valid || elapse < largeNoteWindowMS) continue;
-
-    //        bool isLarge = false;
-    //        for (int j = 0; j < buffer.Length; j++)
-    //        {
-    //            DrumInput otherInput = buffer[j];
-    //            if (!otherInput.valid) continue;
-
-    //            if (input.side != otherInput.side && input.type == otherInput.type)
-    //            {
-    //                isLarge = true;
-    //                buffer[j].Expire();
-    //            }
-    //        }
-
-    //        buffer[i].Expire();
-    //        onRegistered.Invoke(new NoteStructure(input.timestampMS, input.type, isLarge ? Note.Size.Large : Note.Size.Small));
-    //    }
-    //}
 }

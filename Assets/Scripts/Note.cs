@@ -1,3 +1,6 @@
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public struct NoteStructure
@@ -21,6 +24,11 @@ public struct NoteStructure
     public bool IsLarge()
     {
         return (size == Note.Size.Large);
+    }
+
+    public bool Matches(NoteStructure otherNote)
+    {
+        return type == otherNote.type && size == otherNote.size;
     }
 }
 
@@ -58,19 +66,16 @@ public class Note : MonoBehaviour
     public Size size;
 
     private Transform trans;
+    private Rigidbody2D rb;
     private SpriteRenderer spriteRenderer;
+
+    private static List<Note> activeNotes = new List<Note>();
 
     float InverseLerpUnclamped(float min, float max, float valor)
     {
         if (Mathf.Approximately(min, max)) return 0f;
 
         return (valor - min) / (max - min);
-    }
-
-    void Awake()
-    {
-        trans = gameObject.transform;
-        spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
     void UpdateAppearence()
@@ -94,12 +99,7 @@ public class Note : MonoBehaviour
         trans.localScale = Vector3.one * regularNoteSize * (size == Size.Large ? largeNoteSizeFactor : 1f);
     }
 
-    public void Hit()
-    {
-        Lane.ReleaseNote(gameObject);
-    }
-
-    public void Initialize(Type newType, Size newSize, int newHitMS, float newScrollSpeed, int sortingOrder)
+    public void Activate(Type newType, Size newSize, int newHitMS, float newScrollSpeed, int sortingOrder)
     {
         hitMS = newHitMS;
         type = newType;
@@ -107,7 +107,77 @@ public class Note : MonoBehaviour
         scrollSpeed = newScrollSpeed;
         appearenceMS = hitMS - Lane.MSInbetween;
         spriteRenderer.sortingOrder = sortingOrder;
+        trans.position = new Vector2(Lane.spawnX, trans.position.y);
+
+        if (!activeNotes.Contains(this))
+            activeNotes.Add(this);
+
+        Debug.Log(activeNotes.Count);
+
         UpdateAppearence();
+    }
+
+    private void Erase()
+    {
+        activeNotes.Remove(this);
+        Lane.ReleaseNote(gameObject);
+    }
+
+    public void Hit()
+    {
+        Erase();
+    }
+
+    public static bool GetClosest(int timeoutMS, int currentMS, out Note result)
+    {
+        result = default;
+        bool found = false;
+        int lessTime = int.MaxValue;
+
+        foreach (Note note in activeNotes)
+        {
+            int dist = Math.Abs(currentMS - note.hitMS);
+            if (dist > timeoutMS)
+                continue;
+
+            if (note.hitMS < lessTime)
+            {
+                lessTime = note.hitMS;
+                result = note;
+                found = true;
+            }
+        }
+
+        return found;
+    }
+
+    public static bool GetMatching(NoteStructure input, int timeoutMS, int currentMS, out Note result)
+    {
+        result = default;
+        int lessTime = int.MaxValue;
+        bool found = false;
+        foreach (Note note in activeNotes)
+        {
+            int dist = Math.Abs(currentMS - note.hitMS);
+            if (dist > timeoutMS)
+                continue;
+
+            if (note.hitMS < lessTime && note.type == input.type && note.size == input.size)
+            {
+                found = true;
+                result = note;
+                lessTime = note.hitMS;
+            }
+        }
+
+        return found;
+    }
+
+    void Awake()
+    {
+        trans = gameObject.transform;
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        rb = GetComponent<Rigidbody2D>();
     }
 
     private void Update()
@@ -117,9 +187,9 @@ public class Note : MonoBehaviour
 
         if (alpha > 1.5f)
         {
-            Lane.ReleaseNote(gameObject);
+            Erase();
         }
 
-        transform.position = new Vector2(targetX, transform.position.y);
+        rb.MovePosition(new Vector2(targetX, transform.position.y));
     }
 }

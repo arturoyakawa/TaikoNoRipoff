@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.Pool;
@@ -21,9 +22,6 @@ public class Chart
     public int fullCombo { get; private set; } = 0;
 
     Queue<NoteStructure> notesQueue = new Queue<NoteStructure>();
-    List<NoteStructure> abstractNotesQueue = new List<NoteStructure>();
-
-    private int noteScrollPointer = 0;
 
     // --------------------------------------------------------------
 
@@ -49,9 +47,8 @@ public class Chart
         playing = true;
     }
 
-    public bool RenderNotes(int currentMS, out NoteStructure note)
+    public bool RenderNote(int currentMS, out NoteStructure note)
     {
-        Debug.Log("request");
         note = default;
         if (!playing) return false;
 
@@ -72,28 +69,12 @@ public class Chart
         return false;
     }
 
-    public void GetClosest(NoteStructure input)
+    public NoteStructure GetFirst()
     {
-        for (; noteScrollPointer < fullCombo; noteScrollPointer++)
-        {
-            NoteStructure closestNote = abstractNotesQueue[noteScrollPointer];
-            int distance = Math.Abs(input.targetMS - closestNote.targetMS);
-            switch (distance)
-            {
-                case <= Judgement.RyoWindowMS:
-                    Debug.Log("RYO");
-                    break;
-                case <= Judgement.KaWindowMS:
-                    Debug.Log("KA");
-                    break;
-                default:
-                    Debug.Log("FUKA");
-                    break;
-            }
-        }
+        return new NoteStructure();
     }
 
-    public void Parse()
+    public void Parse(int offsetMS)
     {
         string Header = null;
 
@@ -127,8 +108,7 @@ public class Chart
                         Note.Type noteType = int.Parse(objMatch.Groups[3].Value) == 8 ? Note.Type.Katsu : Note.Type.Don;
 
                         fullCombo++;
-                        notesQueue.Enqueue(new NoteStructure(targetMS, noteType, noteSize));
-                        abstractNotesQueue.Add(new NoteStructure(targetMS, noteType, noteSize));
+                        notesQueue.Enqueue(new NoteStructure(targetMS+offsetMS, noteType, noteSize));
                     }
                     break;
             }
@@ -139,17 +119,22 @@ public class Chart
 public class Lane : MonoBehaviour
 {
     [SerializeField] private GameObject notePrefab;
+    [SerializeField] private int Offset;
+    [SerializeField] private string ChartName;
+    [SerializeField] private bool PlayChartAutomatically = true;
+
     public static AudioSource musicAudioSource;
 
     public static float currentScrollSpeed { get; private set; } = 15f;
     public static float spawnX { get; private set; } = 16;
     public static float judgementX { get; private set; } = -7.9552f;
+   // public static float judgementX { get; private set; }
     public static float distanceX { get; private set; } = spawnX - judgementX;
     public static int MSInbetween { get; private set; } = (int)Math.Round(distanceX / currentScrollSpeed * 1000);
 
     private static ObjectPool<GameObject> NotePool;
 
-    public static Chart chart = new Chart("LagTrain", "exnoiz - No Lag Train (2Gbps) (woosungko) [Futsuu]");
+    public static Chart chart;
 
     // --------------------------------------------------------------
         
@@ -176,16 +161,22 @@ public class Lane : MonoBehaviour
 
     public static int GetCurrentMS()
     {
-        return !musicAudioSource.isPlaying ? (int)Math.Round(Time.time*1000) : (int)Math.Round(((double)musicAudioSource.timeSamples / musicAudioSource.clip.frequency) * 1000);
-    }
+        if (!musicAudioSource.isPlaying)
+            return (int)Math.Round(Time.time * 1000);
 
-    public static void TryScore()
-    {
-        
+        return (int)Math.Round(
+            (double)musicAudioSource.timeSamples
+            / musicAudioSource.clip.frequency * 1000
+        );
     }
 
     void Start()
     {
+        chart = new Chart(ChartName, "chart");
+
+        Transform child = transform.GetChild(0);
+        judgementX = child.position.x;
+
         NotePool = new ObjectPool<GameObject>(
             createFunc: () => Instantiate(notePrefab, Camera.main.transform),
             actionOnGet: (note) => note.SetActive(true),
@@ -196,15 +187,16 @@ public class Lane : MonoBehaviour
             maxSize: 10
         );
 
-        chart.Parse();
+        chart.Parse(Offset);
         sortingOrder = chart.fullCombo;
-        Debug.Log(chart.audioPath);
+
+        Debug.Log(chart.fullCombo);
     }
 
     void Update()
     {
         dt += Time.deltaTime;
-        if (dt < 3) return;
+        if (dt < .7f || !PlayChartAutomatically) return;
 
         if (!playing)
         {
@@ -216,13 +208,13 @@ public class Lane : MonoBehaviour
             chart.Play();
         }
 
-        if (chart.RenderNotes(GetCurrentMS(), out NoteStructure note))
+        if (chart.RenderNote(GetCurrentMS(), out NoteStructure note))
         {
-            Debug.Log("RENDER");
+            Debug.Log("try");
             GameObject noteObj = GetNote();
             Note noteScript = noteObj.GetComponent<Note>();
 
-            noteScript.Initialize(note.type, note.size, note.targetMS, currentScrollSpeed, sortingOrder);
+            noteScript.Activate(note.type, note.size, note.targetMS, currentScrollSpeed, sortingOrder);
             sortingOrder--;
         }
     }

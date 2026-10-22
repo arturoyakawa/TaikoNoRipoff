@@ -19,10 +19,18 @@ public class Judgement : MonoBehaviour
 
     private static NoteBuffer noteBuffer = new NoteBuffer();
 
+    public enum Score
+    {
+        Ryo,
+        Ka,
+        Fuka
+    }
+
     // ------------------------------
 
     public const int RyoWindowMS = 42;
     public const int KaWindowMS = 108;
+    public const int FukaWindowMS = 180;
 
     // ------------------------------
 
@@ -36,7 +44,7 @@ public class Judgement : MonoBehaviour
         else
         {
             Debug.Log("DDDD");
-            audioSource.PlayOneShot(donSound);
+            audioSource.PlayOneShot(largeDonSound);
         }
     }
 
@@ -50,7 +58,7 @@ public class Judgement : MonoBehaviour
         else
         {
             Debug.Log("d");
-            audioSource.PlayOneShot(largeDonSound); 
+            audioSource.PlayOneShot(donSound); 
         }
     }
 
@@ -68,7 +76,10 @@ public class Judgement : MonoBehaviour
         else
             CastRegular(note);
 
-        Lane.chart.GetClosest(note);
+        if (Note.GetMatching(note, FukaWindowMS, Lane.GetCurrentMS(), out Note result))
+        {
+            result.Hit();
+        }
     }
 
     void Update()
@@ -79,9 +90,18 @@ public class Judgement : MonoBehaviour
                 HandleNoteStructure(result);
         }
 
-        if (Keyboard.current == null) return;
-
         int currentMS = Lane.GetCurrentMS();
+
+        if (AutoPlay)
+        {
+            if (Note.GetClosest(RyoWindowMS/3, currentMS, out Note result))
+            {
+                result.Hit();
+                HandleNoteStructure(new NoteStructure(currentMS, result.type, result.size));
+            }
+        }
+
+        if (Keyboard.current == null) return;
 
         if (Keyboard.current.zKey.wasPressedThisFrame)
         {

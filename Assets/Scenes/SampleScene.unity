@@ -166,8 +166,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Judgement
   donSound: {fileID: 8300000, guid: b4e4ec9f8c37f2647b00a32c50635b21, type: 3}
   katsuSound: {fileID: 8300000, guid: e6ccaf8c774df9b418cefae2281e37f7, type: 3}
-  largeDonSound: {fileID: 8300000, guid: 0d18aac8758396a4e814d6a670875e96, type: 3}
-  AutoPlay: 1
+  largeDonSound: {fileID: 8300000, guid: eb33b22970e87e14e9470640163e5b6d, type: 3}
+  AutoPlay: 0
 --- !u!82 &200089468
 AudioSource:
   m_ObjectHideFlags: 0
@@ -181,7 +181,7 @@ AudioSource:
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.4
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -691,6 +691,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Lane
   notePrefab: {fileID: 7158403619896870023, guid: 996bad20987e6944ba0bc54012ad2753, type: 3}
+  Offset: 83
+  ChartName: LagTrain
+  PlayChartAutomatically: 0
 --- !u!1 &909273725
 GameObject:
   m_ObjectHideFlags: 0
