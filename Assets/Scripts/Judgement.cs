@@ -19,6 +19,13 @@ public class Judgement : MonoBehaviour
 
     private static NoteBuffer noteBuffer = new NoteBuffer();
 
+    // ------------------------------
+
+    public const int RyoWindowMS = 42;
+    public const int KaWindowMS = 108;
+
+    // ------------------------------
+
     private void CastLarge(NoteStructure note)
     {
         if (note.IsKatsu())
@@ -60,6 +67,8 @@ public class Judgement : MonoBehaviour
             CastLarge(note);
         else
             CastRegular(note);
+
+        Lane.chart.GetClosest(note);
     }
 
     void Update()

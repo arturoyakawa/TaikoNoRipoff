@@ -22,7 +22,7 @@ public struct DrumInput
 
 public class NoteBuffer
 {
-    public const int largeNoteWindowMS = 10;
+    public const int largeNoteWindowMS = 20;
     private DrumInput[] buffer = new DrumInput[4];
 
     private NoteStructure Process(int index, bool isLarge)
@@ -40,7 +40,7 @@ public class NoteBuffer
 
     public bool Register(int index, int timestampMS, out NoteStructure note)
     {
-        note = new NoteStructure();
+        note = default;
         if (buffer[index].valid)
         {
             note = Process(index, false);
