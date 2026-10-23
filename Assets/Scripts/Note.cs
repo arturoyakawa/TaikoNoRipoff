@@ -58,9 +58,28 @@ public class Note : MonoBehaviour
     [Header("Note Sprites")]
     [SerializeField] private Sprite donImage;
     [SerializeField] private Sprite katsuImage;
+
+    [SerializeField] private Sprite donMouthImage;
+    [SerializeField] private Sprite katsuMouthImage;
+
     [SerializeField] private Sprite greendonImage;
     [SerializeField] private Sprite voitsuImage;
+
     [SerializeField] private AudioSource musicAudioSource;
+
+    // ANIMATION --------
+
+    [SerializeField] private float hitAnimAmplitude;
+    [SerializeField] private float hitAnimLength;
+    [SerializeField] private float hitAnimDuration = 1;
+
+    static float hitAmp;
+    static float hitLen;
+    static float hitDur;
+
+    ScriptAnimation HitAnim;
+    
+    // ------------------
 
     public Type type;
     public Size size;
@@ -71,12 +90,7 @@ public class Note : MonoBehaviour
 
     private static List<Note> activeNotes = new List<Note>();
 
-    float InverseLerpUnclamped(float min, float max, float valor)
-    {
-        if (Mathf.Approximately(min, max)) return 0f;
-
-        return (valor - min) / (max - min);
-    }
+    private bool active = false;
 
     void UpdateAppearence()
     {
@@ -99,31 +113,17 @@ public class Note : MonoBehaviour
         trans.localScale = Vector3.one * regularNoteSize * (size == Size.Large ? largeNoteSizeFactor : 1f);
     }
 
-    public void Activate(Type newType, Size newSize, int newHitMS, float newScrollSpeed, int sortingOrder)
-    {
-        hitMS = newHitMS;
-        type = newType;
-        size = newSize;
-        scrollSpeed = newScrollSpeed;
-        appearenceMS = hitMS - Lane.MSInbetween;
-        spriteRenderer.sortingOrder = sortingOrder;
-        trans.position = new Vector2(Lane.spawnX, trans.position.y);
-
-        if (!activeNotes.Contains(this))
-            activeNotes.Add(this);
-
-        UpdateAppearence();
-    }
-
     private void Erase()
     {
-        activeNotes.Remove(this);
+        trans.position = new Vector2(Lane.spawnX, Lane.judgementY);
         Lane.ReleaseNote(gameObject);
     }
 
     public void Hit()
     {
-        Erase();
+        Deactivate();
+        HitAnim.Play();
+       // Erase();
     }
 
     public int GetDistance(int currentMS, bool isSigned = false)
@@ -179,24 +179,72 @@ public class Note : MonoBehaviour
         return found;
     }
 
+    public void Deactivate()
+    {
+        active = false;
+        activeNotes.Remove(this);
+    }
+
+    public void Activate(Type newType, Size newSize, int newHitMS, float newScrollSpeed, int sortingOrder)
+    {
+        hitMS = newHitMS;
+        type = newType;
+        size = newSize;
+        scrollSpeed = newScrollSpeed;
+        appearenceMS = hitMS - Lane.MSInbetween;
+        spriteRenderer.sortingOrder = sortingOrder;
+
+        if (!activeNotes.Contains(this))
+            activeNotes.Add(this);
+
+        UpdateAppearence();
+
+        active = true;
+    }
+
     void Awake()
     {
         trans = gameObject.transform;
         spriteRenderer = GetComponent<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
+
+        HitAnim = new ScriptAnimation(hitAnimDuration);
+        HitAnim.OnStep += (float alpha) =>
+        {
+            float xOffset = hitAnimLength * alpha;
+            float yOffset = (float)Math.Sin(alpha * 150 * Mathf.Deg2Rad) * hitAnimAmplitude;
+
+            rb.MovePosition(new Vector2(Lane.judgementX + xOffset, Lane.judgementY + yOffset));
+        };
+
+        HitAnim.OnEnd += () =>
+        {
+            Erase();
+        };
     }
 
     private void Update()
     {
+        if (!active) 
+        {
+            HitAnim.Step();
+            return; 
+        }
+
+        hitLen = hitAnimLength;
+        hitAmp = hitAnimAmplitude;
+        hitDur = hitAnimDuration;
+
         int currentMS = Lane.GetCurrentMS();
-        float alpha = InverseLerpUnclamped(appearenceMS, hitMS, currentMS);
+        float alpha = MathUtils.InverseLerpUnclamped(appearenceMS, hitMS, currentMS);
         float targetX = Mathf.LerpUnclamped(Lane.spawnX, Lane.judgementX, alpha);
 
         if (GetDistance(currentMS, true) <= -Judgement.FukaWindowMS - 200)
         {
+            Deactivate();
             Erase();
         }
 
-        rb.MovePosition(new Vector2(targetX, transform.position.y));
+        rb.MovePosition(new Vector2(targetX, Lane.judgementY));
     }
 }

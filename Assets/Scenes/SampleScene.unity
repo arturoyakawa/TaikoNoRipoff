@@ -167,7 +167,7 @@ MonoBehaviour:
   donSound: {fileID: 8300000, guid: b4e4ec9f8c37f2647b00a32c50635b21, type: 3}
   katsuSound: {fileID: 8300000, guid: e6ccaf8c774df9b418cefae2281e37f7, type: 3}
   largeDonSound: {fileID: 8300000, guid: eb33b22970e87e14e9470640163e5b6d, type: 3}
-  AutoPlay: 1
+  AutoPlay: 0
 --- !u!82 &200089468
 AudioSource:
   m_ObjectHideFlags: 0
@@ -401,6 +401,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 895718963}
+  - {fileID: 1706495583}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &619394800
@@ -692,8 +693,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Lane
   notePrefab: {fileID: 7158403619896870023, guid: 996bad20987e6944ba0bc54012ad2753, type: 3}
   Offset: 83
-  ChartName: LagTrain
+  ChartName: Executioner
   PlayChartAutomatically: 1
+  judgementLocation: -8.16
+  scrollSpeed: 17.9
+  songSpeed: 1
 --- !u!1 &909273725
 GameObject:
   m_ObjectHideFlags: 0
@@ -724,6 +728,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1706495582
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1706495583}
+  m_Layer: 0
+  m_Name: GameObject
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1706495583
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1706495582}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.7, y: 2.06, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 519420032}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

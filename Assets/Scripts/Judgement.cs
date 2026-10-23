@@ -101,7 +101,7 @@ public class Judgement : MonoBehaviour
         {
             if (Note.GetClosest(RyoWindowMS/3, currentMS, out Note result))
             {
-                result.Hit();
+                //result.Hit();
                 HandleNoteStructure(new NoteStructure(currentMS, result.type, result.size));
             }
         }

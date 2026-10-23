@@ -104,6 +104,7 @@ public class Chart
                     if (objMatch.Success)
                     {
                         int targetMS = int.Parse(objMatch.Groups[1].Value);
+
                         Note.Size noteSize = int.Parse(objMatch.Groups[2].Value) == 5 ? Note.Size.Large : Note.Size.Small;
                         Note.Type noteType = int.Parse(objMatch.Groups[3].Value) == 8 ? Note.Type.Katsu : Note.Type.Don;
 
@@ -122,12 +123,17 @@ public class Lane : MonoBehaviour
     [SerializeField] private int Offset;
     [SerializeField] private string ChartName;
     [SerializeField] private bool PlayChartAutomatically = true;
+    [SerializeField] private float judgementLocation = -8.16f;
+    [SerializeField] private float scrollSpeed = 15f;
+
+    [SerializeField] private float songSpeed = 1f;
 
     public static AudioSource musicAudioSource;
 
-    public static float currentScrollSpeed { get; private set; } = 15f;
+    public static float currentScrollSpeed { get; private set; }
     public static float spawnX { get; private set; } = 16;
-    public static float judgementX { get; private set; } = -7.9552f;
+    public static float judgementX { get; private set; } = -8.16f;
+    public static float judgementY { get; private set; } = 0;
     public static float distanceX { get; private set; } = spawnX - judgementX;
     public static int MSInbetween { get; private set; } = (int)Math.Round(distanceX / currentScrollSpeed * 1000);
 
@@ -178,8 +184,8 @@ public class Lane : MonoBehaviour
 
         NotePool = new ObjectPool<GameObject>(
             createFunc: () => Instantiate(notePrefab, Camera.main.transform),
-            actionOnGet: (note) => note.SetActive(true),
-            actionOnRelease: (note) => note.SetActive(false),
+            //actionOnGet: (note) => note.SetActive(true),
+         //   actionOnRelease: (note) => note.SetActive(false),
             actionOnDestroy: (note) => { if (note) Destroy(note); },
             collectionCheck: false,
             defaultCapacity: 10,
@@ -193,6 +199,12 @@ public class Lane : MonoBehaviour
     void Update()
     {
         dt += Time.deltaTime;
+        judgementX = judgementLocation;
+        currentScrollSpeed = scrollSpeed;
+
+        musicAudioSource.pitch = songSpeed;
+
+        MSInbetween = (int)Math.Round(distanceX / currentScrollSpeed * 1000);
         if (dt < .7f || !PlayChartAutomatically) return;
 
         if (!playing)
@@ -202,6 +214,7 @@ public class Lane : MonoBehaviour
 
             musicAudioSource.clip = song;
             musicAudioSource.Play();
+            
             chart.Play();
         }
 

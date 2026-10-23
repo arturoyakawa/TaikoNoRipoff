@@ -107,9 +107,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Note
   donImage: {fileID: 1827083876702484894, guid: 374e830d0c30bfc4792ae3df8966aebe, type: 3}
   katsuImage: {fileID: -8506948488852355521, guid: a576c0cc2b4eb2d40842d9ccd756df16, type: 3}
+  donMouthImage: {fileID: 5720445381502116756, guid: d9151326ede3d1e41934ee9bb6ebd6ac, type: 3}
+  katsuMouthImage: {fileID: 5392952512398686323, guid: 24b8033a9b74d634c9377d397535bc01, type: 3}
   greendonImage: {fileID: -7046143186869228637, guid: cfbf55494a67fc540a489fe5d03148ea, type: 3}
   voitsuImage: {fileID: -8912919328250803832, guid: 8f8642657ac08284c91502b661fbc7dd, type: 3}
   musicAudioSource: {fileID: 0}
+  hitAnimAmplitude: 4.5
+  hitAnimLength: 16.6
+  hitAnimDuration: 0.32
   type: 1
   size: 1
 --- !u!50 &2355790447456693651
