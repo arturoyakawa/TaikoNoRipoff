@@ -14,7 +14,9 @@ As notas vermelhas se chamam **Don**, as azuis **Katsu**.
 
 Notas grandes necessitam que as duas teclas sejam pressionadas para que o acerto seja contado. 
 
-Por exemplo, para acertar um **Large Don** (Don grande) é necessário apertar as teclas **X** e **C** ao mesmo tempo.
+Por exemplo, para acertar um **Large Don** (Don grande), é necessário apertar as teclas **X** e **C** ao mesmo tempo.
+
+Para acertar um **Large Katsu** (Katsu grande), por sua vez, é preciso apertar **Z** e **V** ao mesmo tempo.
 
 ## Judgements:
 - **Ryo!** => Hit no timing certo. (Acerto dentro de uma janela de 42ms)
