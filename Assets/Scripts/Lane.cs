@@ -25,7 +25,7 @@ public class Chart
 
     // --------------------------------------------------------------
 
-    private static readonly Regex noteRegex = new(@"^\d+,\d+,(\d+),(\d+),(\d+),", RegexOptions.Compiled);
+    private static readonly Regex noteRegex = new(@"^\d+,\d+,(\d+),\d+,(\d+),", RegexOptions.Compiled);
     private static readonly Regex trackRegex = new(@"^AudioFilename: (.+)", RegexOptions.Compiled);
 
     // --------------------------------------------------------------
@@ -104,9 +104,11 @@ public class Chart
                     if (objMatch.Success)
                     {
                         int targetMS = int.Parse(objMatch.Groups[1].Value);
-
-                        Note.Size noteSize = int.Parse(objMatch.Groups[2].Value) == 5 ? Note.Size.Large : Note.Size.Small;
-                        Note.Type noteType = int.Parse(objMatch.Groups[3].Value) == 8 ? Note.Type.Katsu : Note.Type.Don;
+                        int hitSound = int.Parse(objMatch.Groups[2].Value);
+ 
+                        // bitwise operators are so cool istg!
+                        Note.Size noteSize = (hitSound & 4) == 4 ? Note.Size.Large : Note.Size.Small;
+                        Note.Type noteType = ((hitSound & 10) > 0) ? Note.Type.Katsu : Note.Type.Don;
 
                         fullCombo++;
                         notesQueue.Enqueue(new NoteStructure(targetMS+offsetMS, noteType, noteSize));
