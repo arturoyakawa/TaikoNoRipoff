@@ -74,13 +74,14 @@ public class Note : MonoBehaviour
     [SerializeField] private float hitAnimAmplitude;
     [SerializeField] private float hitAnimLength;
     [SerializeField] private float hitAnimDuration = 1;
+    [SerializeField] private float disappearDelay = .3f;
 
     static float hitAmp;
     static float hitLen;
     static float hitDur;
 
     ScriptAnimation HitAnim;
-    
+
     // ------------------
 
     public Type type;

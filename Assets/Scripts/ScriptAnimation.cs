@@ -49,7 +49,7 @@ public class ScriptAnimation
         if (!isPlaying) return;
 
         float alpha = GetAlpha();
-        OnStep.Invoke(alpha);
+        OnStep?.Invoke(alpha);
 
         if (alpha >= 1)
         {
