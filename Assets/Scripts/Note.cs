@@ -50,6 +50,8 @@ public class Note : MonoBehaviour
 
     private float scrollSpeed;
     public int hitMS { get; private set; }
+    public int sortingOrder { get; private set; }
+
     private int appearenceMS;
 
     private static float regularNoteSize = 1.2875f;
@@ -185,13 +187,15 @@ public class Note : MonoBehaviour
         activeNotes.Remove(this);
     }
 
-    public void Activate(Type newType, Size newSize, int newHitMS, float newScrollSpeed, int sortingOrder)
+    public void Activate(Type newType, Size newSize, int newHitMS, float newScrollSpeed, int newSortingOrder)
     {
         hitMS = newHitMS;
         type = newType;
         size = newSize;
         scrollSpeed = newScrollSpeed;
+        sortingOrder = newSortingOrder;
         appearenceMS = hitMS - Lane.MSInbetween;
+
         spriteRenderer.sortingOrder = sortingOrder;
 
         if (!activeNotes.Contains(this))

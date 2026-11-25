@@ -19,6 +19,7 @@ public class Chart
 
     bool playing = false;
 
+
     public int fullCombo { get; private set; } = 0;
 
     Queue<NoteStructure> notesQueue = new Queue<NoteStructure>();
