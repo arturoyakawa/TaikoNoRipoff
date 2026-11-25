@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class Judgement : MonoBehaviour
 {
@@ -13,6 +14,7 @@ public class Judgement : MonoBehaviour
     [SerializeField] GameObject ryoText;
     [SerializeField] GameObject kaText;
     [SerializeField] GameObject fukaText;
+    [SerializeField] GameObject comboDisplay;
 
     private float ogTextHeight;
 
@@ -23,6 +25,8 @@ public class Judgement : MonoBehaviour
     ScriptAnimation ryoAnim = new ScriptAnimation(.2f);
     ScriptAnimation kaAnim = new ScriptAnimation(.2f);
     ScriptAnimation fukaAnim = new ScriptAnimation(.2f);
+
+    TMP_Text comboText;
 
     //[SerializeField]
 
@@ -78,6 +82,30 @@ public class Judgement : MonoBehaviour
         fukaText.SetActive(false);
     }
 
+    private void ThrowRyo()
+    {
+        ryoAnim.Play();
+        HideAllText();
+        ryoText.SetActive(true);
+        comboText.text = (int.Parse(comboText.text) + 1).ToString();
+    }
+
+    private void ThrowKa()
+    {
+        kaAnim.Play();
+        HideAllText();
+        kaText.SetActive(true);
+        comboText.text = (int.Parse(comboText.text) + 1).ToString();
+    }
+
+    private void ThrowFuka()
+    {
+        fukaAnim.Play();
+        HideAllText();
+        fukaText.SetActive(true);
+        comboText.text = "0";
+    }
+
     void HandleNoteStructure(NoteStructure note)
     {
         int currentMS = Lane.GetCurrentMS();
@@ -92,26 +120,15 @@ public class Judgement : MonoBehaviour
             switch (result.GetDistance(currentMS))
             {
                 case <= RyoWindowMS:
-                    Debug.Log("Ryo!");
-                    ryoAnim.Play();
-                    HideAllText();
-                    ryoText.SetActive(true);
+                    ThrowRyo();
                     break;
                 case <= KaWindowMS:
-                    Debug.Log("Ok.");
-                    kaAnim.Play();
-                    HideAllText();
-                    kaText.SetActive(true);
+                    ThrowKa();
                     break;
                 default:
-                    Debug.Log("Fuka...");
-                    fukaAnim.Play();
-                    HideAllText();
-                    fukaText.SetActive(true);
+                    ThrowFuka();
                     break;
             }
-            
-
             result.Hit();
         }
     }
@@ -124,6 +141,8 @@ public class Judgement : MonoBehaviour
         ryoSprite = ryoText.GetComponent<MeshRenderer>();
         fukaSprite = fukaText.GetComponent<MeshRenderer>();
         kaSprite = kaText.GetComponent<MeshRenderer>();
+
+        comboText = comboDisplay.GetComponent<TMP_Text>();
     }
 
     float judgementUpwardsOffset = .4f;
@@ -136,7 +155,6 @@ public class Judgement : MonoBehaviour
         {
             float y = Mathf.Lerp(ogTextHeight, ogTextHeight + judgementUpwardsOffset, Math.Clamp(alpha, 0f, maxAlpha));
             ryoText.transform.position = new Vector2(ryoText.transform.position.x,y);
-            Debug.Log(y);
         };
         ryoAnim.OnEnd += () =>
         {
@@ -172,11 +190,21 @@ public class Judgement : MonoBehaviour
         
         for (int i = 0; i<4; i++)
         {
-            if (noteBuffer.CheckCell(i, out NoteStructure result))
-                HandleNoteStructure(result);
+            if (noteBuffer.CheckCell(i, out NoteStructure structureresult))
+                HandleNoteStructure(structureresult);
         }
 
         int currentMS = Lane.GetCurrentMS();
+
+        if (Note.GetClosest(FukaWindowMS, currentMS, out Note closest))
+        {
+            //result.Hit();
+            if (closest.GetDistance(currentMS, true) <= -KaWindowMS)
+            {
+                ThrowFuka();
+            }
+           // HandleNoteStructure(new NoteStructure(currentMS, result.type, result.size));
+        }
 
         if (AutoPlay)
         {
